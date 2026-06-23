@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills Library — Team Decision</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface-2: #1e2436;
+    --border: #2a3147;
+    --border-active: #4a5580;
+    --text: #e8ecf4;
+    --muted: #7a8499;
+    --accent-1: #4f8aff;
+    --accent-2: #7c5cfc;
+    --pro: #34c97a;
+    --con: #f05b5b;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── Page wrapper — constrains width on large screens ── */
+  .page-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 32px 48px 28px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 20px; height: 1px;
+    background: var(--muted);
+  }
+  h1 {
+    font-size: 26px; font-weight: 700;
+    line-height: 1.25; letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .subtitle { margin-top: 8px; font-size: 14px; color: var(--muted); line-height: 1.6; max-width: 600px; }
+
+  /* ── Tabs ── */
+  .tabs-wrapper {
+    padding: 0 48px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+  }
+  .tab-btn {
+    background: none; border: none; cursor: pointer;
+    font-family: var(--sans); font-size: 14px; font-weight: 500;
+    color: var(--muted); padding: 18px 28px 16px;
+    position: relative; transition: color 0.15s;
+    display: flex; align-items: center; gap: 10px;
+    white-space: nowrap;
+  }
+  .tab-btn::after {
+    content: ''; position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 2px; background: transparent; transition: background 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active-1 { color: var(--accent-1); }
+  .tab-btn.active-1::after { background: var(--accent-1); }
+  .tab-btn.active-2 { color: var(--accent-2); }
+  .tab-btn.active-2::after { background: var(--accent-2); }
+  .tab-btn.active-c { color: var(--text); }
+  .tab-btn.active-c::after { background: var(--border-active); }
+
+  .tab-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-1 { background: var(--accent-1); }
+  .dot-2 { background: var(--accent-2); }
+
+  /* ── Tab content ── */
+  .tab-content { display: none; padding: 40px 48px 0; }
+  .tab-content.active { display: block; }
+
+  .option-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 32px;
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 12px;
+  }
+
+  .summary-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px;
+    margin-bottom: 4px; grid-column: 1 / -1;
+  }
+  .summary-card p { font-size: 15px; line-height: 1.75; color: #c8d0e0; }
+
+  /* ── Architecture diagram ── */
+  .arch-section {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 24px 20px;
+    margin-bottom: 4px;
+  }
+  .arch-section svg { display: block; width: 100%; }
+
+  @keyframes dashflow { to { stroke-dashoffset: -24; } }
+  .flow-line-anim { stroke-dasharray: 6 4; animation: dashflow 1.4s linear infinite; }
+  .flow-line-anim-slow { stroke-dasharray: 6 4; animation: dashflow 2.2s linear infinite; }
+  @keyframes pulse-ring { 0% { r: 4; opacity: 0.7; } 100% { r: 10; opacity: 0; } }
+  .pulse { animation: pulse-ring 1.8s ease-out infinite; }
+
+  /* ── Pros / cons ── */
+  .pros-cons {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px 24px;
+  }
+  .pros-cons ul { list-style: none; }
+  .pros-cons li {
+    font-size: 13.5px; line-height: 1.6; padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: flex-start; color: #c8d0e0;
+  }
+  .pros-cons li:last-child { border-bottom: none; }
+  .pros-cons li::before { font-size: 13px; margin-top: 2px; flex-shrink: 0; }
+  .pros li::before { content: '+'; color: var(--pro); font-weight: 700; font-family: var(--mono); }
+  .cons li::before { content: '−'; color: var(--con); font-weight: 700; font-family: var(--mono); }
+
+  /* ── Considerations ── */
+  .considerations {
+    grid-column: 1 / -1;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px; margin-top: 4px;
+  }
+  .considerations-title {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .open-question {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin-top: 12px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .open-question .q-icon { font-size: 15px; margin-top: 1px; }
+  .open-question p { font-size: 13.5px; color: #c8d0e0; line-height: 1.6; }
+  .open-question strong { color: var(--text); }
+
+  /* ── Compare tab ── */
+  .radar-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 28px 24px; margin-bottom: 32px;
+  }
+  .radar-legend {
+    display: flex; gap: 24px; justify-content: center; margin-top: 16px;
+  }
+  .radar-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .compare-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; margin-bottom: 48px;
+  }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .compare-table th {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted);
+    text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .compare-table td {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    vertical-align: top; line-height: 1.6; color: #c8d0e0;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+  .compare-table td:first-child {
+    color: var(--muted); font-family: var(--mono);
+    font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .compare-table td.opt-1 { color: var(--accent-1); }
+  .compare-table td.opt-2 { color: var(--accent-2); }
+
+  /* ── Sub-sections (Library / Linking) ── */
+  .sub-section {
+    margin-bottom: 40px;
+  }
+  .sub-section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 10px 10px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    background: var(--surface-2);
+    margin-bottom: 0;
+  }
+  .sub-section-header.accent-1 { border-color: rgba(79,138,255,0.3); background: rgba(79,138,255,0.06); }
+  .sub-section-header.accent-2 { border-color: rgba(124,92,252,0.3); background: rgba(124,92,252,0.06); }
+  .sub-section-number {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .accent-1 .sub-section-number { background: rgba(79,138,255,0.15); color: var(--accent-1); }
+  .accent-2 .sub-section-number { background: rgba(124,92,252,0.15); color: var(--accent-2); }
+  .sub-section-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .sub-section-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .sub-section .option-grid {
+    border: 1px solid var(--border);
+    border-radius: 0 0 10px 10px;
+    padding: 20px;
+    background: var(--surface);
+  }
+  .accent-1 + .option-grid,
+  .sub-section-header.accent-1 + .option-grid { border-color: rgba(79,138,255,0.2); }
+  .sub-section-header.accent-2 + .option-grid { border-color: rgba(124,92,252,0.2); }
+
+  @media (max-width: 900px) {
+    .option-grid { grid-template-columns: 1fr; }
+    .header, .tabs-wrapper, .tab-content { padding-left: 24px; padding-right: 24px; }
+    .tabs-wrapper { overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<div class="header">
+  <div class="eyebrow">Architecture Decision</div>
+  <h1>Resources Library — Storage &amp; Versioning Model</h1>
+  <p class="subtitle">We're starting with <strong style="color:var(--text)">skills</strong>, but this model will set the foundation for the full resources library — tools, templates, code components, and more. The architecture we pick now needs to scale to all of those.</p>
+</div>
+
+<div class="tabs-wrapper">
+  <button class="tab-btn active-1" onclick="switchTab('opt1')" id="tab-opt1">
+    <span class="tab-dot dot-1"></span>
+    Option 1 — Copy on link
+  </button>
+  <button class="tab-btn" onclick="switchTab('opt2')" id="tab-opt2">
+    <span class="tab-dot dot-2"></span>
+    Option 2 — Git-backed
+  </button>
+  <button class="tab-btn" onclick="switchTab('compare')" id="tab-compare">
+    Compare
+  </button>
+</div>
+
+<div class="tab-content active" id="content-opt1">
+
+  <div class="summary-card" style="margin-bottom:28px;">
+    <div class="section-label">Overview</div>
+    <p>
+      Skills live in <strong>S3/RDS</strong>. No versioning — every edit replaces "latest."
+      When a user links a skill to an agent, the platform <strong>copies the entire skill folder</strong> into that pipeline's <code>resources/</code> folder. The YAML references skills locally from there, and the whole unit (yaml + resources/) versions together.
+      Edits via the UI update only that pipeline's copy — other pipelines are unaffected.
+      <br><br>
+      <strong>Customer repos:</strong> once connected, the library page does a live read-only pull to show the latest skills from that repo alongside platform skills. They're browseable but not editable in the UI. Linking any of them triggers the same copy event — the folder lands in <code>resources/</code> just like a platform skill would.
+      <br><br>
+      <strong>Scope:</strong> starting with skills, but the same copy-on-link model would apply to tools, templates, code components, and other resource types as the library grows.
+    </p>
+  </div>
+
+  <!-- ── PROBLEM 1: THE LIBRARY ── -->
+  <div class="sub-section">
+    <div class="sub-section-header accent-1">
+      <span class="sub-section-number">1</span>
+      <div>
+        <div class="sub-section-title">The Library</div>
+        <div class="sub-section-desc">How resources are stored, browsed, and managed</div>
+      </div>
+    </div>
+    <div class="option-grid">
+      <div class="arch-section" style="grid-column:1/-1">
+        <div class="section-label">Storage &amp; library view</div>
+        <svg viewBox="0 0 780 260" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',sans-serif;">
+          <defs>
+            <marker id="ah1a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#4f8aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+            <marker id="ah1g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#34c97a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- S3/RDS store -->
+          <rect x="14" y="20" width="174" height="134" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="101" y="40" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">S3 / RDS STORAGE</text>
+          <rect x="26" y="48" width="150" height="28" rx="5" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="36" y="66" font-size="11" fill="#e8ecf4">📁 skill_a/</text>
+          <rect x="26" y="82" width="150" height="28" rx="5" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="36" y="100" font-size="11" fill="#e8ecf4">📁 skill_b/</text>
+          <rect x="26" y="116" width="150" height="28" rx="5" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="36" y="134" font-size="11" fill="#7a8499">📁 skill_c/  ...</text>
+          <rect x="26" y="166" width="150" height="18" rx="3" fill="rgba(240,91,91,0.07)" stroke="rgba(240,91,91,0.18)" stroke-width="0.5"/>
+          <text x="101" y="178" text-anchor="middle" font-size="9" fill="#f05b5b">no version history · latest only</text>
+
+          <!-- Customer repo -->
+          <rect x="14" y="192" width="174" height="52" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="101" y="210" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">CUSTOMER REPO</text>
+          <rect x="26" y="218" width="150" height="18" rx="3" fill="rgba(52,201,122,0.07)" stroke="rgba(52,201,122,0.2)" stroke-width="0.5"/>
+          <text x="101" y="230" text-anchor="middle" font-size="9" fill="#34c97a">on-the-fly pull · no data stored</text>
+
+          <!-- arrows into library page -->
+          <line x1="188" y1="87" x2="236" y2="87" stroke="#4f8aff" stroke-width="1.4" class="flow-line-anim" marker-end="url(#ah1a)"/>
+          <line x1="188" y1="218" x2="236" y2="130" stroke="#34c97a" stroke-width="1.4" class="flow-line-anim" marker-end="url(#ah1g)"/>
+
+          <!-- Library page (merged view) -->
+          <rect x="238" y="20" width="200" height="220" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="338" y="40" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">LIBRARY PAGE</text>
+
+          <rect x="250" y="48" width="176" height="38" rx="6" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="260" y="65" font-size="12" font-weight="600" fill="#e8ecf4">skill_a</text>
+          <text x="260" y="79" font-size="10" fill="#7a8499">NLP parser</text>
+          <rect x="382" y="54" width="36" height="14" rx="3" fill="rgba(79,138,255,0.15)" stroke="rgba(79,138,255,0.3)" stroke-width="0.5"/>
+          <text x="400" y="64" text-anchor="middle" font-size="8" font-weight="600" fill="#4f8aff">latest</text>
+
+          <rect x="250" y="92" width="176" height="38" rx="6" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="260" y="109" font-size="12" font-weight="600" fill="#e8ecf4">skill_b</text>
+          <text x="260" y="123" font-size="10" fill="#7a8499">Summariser</text>
+          <rect x="382" y="98" width="36" height="14" rx="3" fill="rgba(79,138,255,0.15)" stroke="rgba(79,138,255,0.3)" stroke-width="0.5"/>
+          <text x="400" y="108" text-anchor="middle" font-size="8" font-weight="600" fill="#4f8aff">latest</text>
+
+          <line x1="250" y1="142" x2="426" y2="142" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="338" y="158" text-anchor="middle" font-size="9" fill="#34c97a" letter-spacing="0.05em">FROM CUSTOMER REPO</text>
+
+          <rect x="250" y="164" width="176" height="38" rx="6" fill="#141928" stroke="rgba(52,201,122,0.3)" stroke-width="0.5"/>
+          <text x="260" y="181" font-size="12" font-weight="600" fill="#e8ecf4">cust_skill_x</text>
+          <text x="260" y="195" font-size="10" fill="#7a8499">read-only · latest</text>
+          <rect x="376" y="170" width="42" height="14" rx="3" fill="rgba(52,201,122,0.1)" stroke="rgba(52,201,122,0.3)" stroke-width="0.5"/>
+          <text x="397" y="180" text-anchor="middle" font-size="8" font-weight="600" fill="#34c97a">repo</text>
+
+          <rect x="250" y="212" width="176" height="18" rx="3" fill="rgba(240,91,91,0.07)" stroke="rgba(240,91,91,0.18)" stroke-width="0.5"/>
+          <text x="338" y="224" text-anchor="middle" font-size="9" fill="#f05b5b">UI editing disabled for repo skills</text>
+
+          <!-- callout box -->
+          <rect x="458" y="20" width="308" height="220" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="612" y="42" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">CHARACTERISTICS</text>
+
+          <rect x="470" y="52" width="284" height="30" rx="5" fill="rgba(240,91,91,0.06)" stroke="rgba(240,91,91,0.15)" stroke-width="0.5"/>
+          <text x="479" y="68" font-size="11" fill="#f05b5b">− No version history for platform skills</text>
+          <text x="479" y="82" font-size="10" fill="#7a8499">Every save replaces latest</text>
+
+          <rect x="470" y="96" width="284" height="30" rx="5" fill="rgba(79,138,255,0.06)" stroke="rgba(79,138,255,0.15)" stroke-width="0.5"/>
+          <text x="479" y="112" font-size="11" fill="#4f8aff">+ Simple to manage &amp; edit</text>
+          <text x="479" y="126" font-size="10" fill="#7a8499">No git concepts for non-engineers</text>
+
+          <rect x="470" y="140" width="284" height="30" rx="5" fill="rgba(52,201,122,0.06)" stroke="rgba(52,201,122,0.15)" stroke-width="0.5"/>
+          <text x="479" y="156" font-size="11" fill="#34c97a">+ Customer repo skills appear seamlessly</text>
+          <text x="479" y="170" font-size="10" fill="#7a8499">Live pull, no extra storage needed</text>
+
+          <rect x="470" y="184" width="284" height="30" rx="5" fill="rgba(240,91,91,0.06)" stroke="rgba(240,91,91,0.15)" stroke-width="0.5"/>
+          <text x="479" y="200" font-size="11" fill="#f05b5b">− Repo skills: no history visible either</text>
+          <text x="479" y="214" font-size="10" fill="#7a8499">Only latest is surfaced</text>
+        </svg>
+      </div>
+      <div>
+        <div class="section-label">Advantages</div>
+        <div class="pros-cons">
+          <ul class="pros">
+            <li>No external dependency — fully self-contained in existing S3/RDS infra</li>
+            <li>Non-engineers can create, edit, and delete skills without git knowledge</li>
+            <li>Customer repo skills surface alongside platform skills with zero extra storage</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Drawbacks</div>
+        <div class="pros-cons">
+          <ul class="cons">
+            <li>No history — there is no way to see or recover a previous version of a skill</li>
+            <li>Can't compare what changed between edits</li>
+            <li>For customer repo skills, only latest is shown — past commits not accessible</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROBLEM 2: LINKING ── -->
+  <div class="sub-section">
+    <div class="sub-section-header accent-1">
+      <span class="sub-section-number">2</span>
+      <div>
+        <div class="sub-section-title">Linking to a Pipeline</div>
+        <div class="sub-section-desc">What happens when a resource is added to an agent</div>
+      </div>
+    </div>
+    <div class="option-grid">
+      <div class="arch-section" style="grid-column:1/-1">
+        <div class="section-label">Copy-on-link · pipeline folder structure</div>
+        <svg viewBox="0 0 780 280" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',sans-serif;">
+          <defs>
+            <marker id="ah1b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#4f8aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- Source: library -->
+          <rect x="14" y="36" width="148" height="100" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="88" y="56" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">LIBRARY</text>
+          <rect x="26" y="64" width="124" height="28" rx="5" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="38" y="82" font-size="11" fill="#e8ecf4">skill_a  <tspan fill="#4f8aff" font-size="9">latest</tspan></text>
+          <rect x="26" y="98" width="124" height="28" rx="5" fill="#141928" stroke="rgba(52,201,122,0.3)" stroke-width="0.5"/>
+          <text x="38" y="116" font-size="11" fill="#e8ecf4">cust_skill_x  <tspan fill="#34c97a" font-size="9">repo</tspan></text>
+
+          <!-- link arrow -->
+          <line x1="162" y1="86" x2="200" y2="120" stroke="#4f8aff" stroke-width="1.5" class="flow-line-anim" marker-end="url(#ah1b)"/>
+          <line x1="162" y1="114" x2="200" y2="130" stroke="#4f8aff" stroke-width="1.3" class="flow-line-anim" marker-end="url(#ah1b)"/>
+          <text x="172" y="104" font-size="10" fill="#7a8499">link</text>
+
+          <!-- Copy event -->
+          <rect x="202" y="96" width="136" height="68" rx="8" fill="rgba(79,138,255,0.1)" stroke="#4f8aff" stroke-width="1.2"/>
+          <text x="270" y="120" text-anchor="middle" font-size="11" font-weight="600" fill="#4f8aff">COPY EVENT</text>
+          <text x="270" y="137" text-anchor="middle" font-size="11" fill="#c8d0e0">clones full folder</text>
+          <text x="270" y="152" text-anchor="middle" font-size="10" fill="#7a8499">platform or repo skill</text>
+          <circle cx="270" cy="130" r="6" fill="none" stroke="#4f8aff" stroke-width="1.5" opacity="0.7" class="pulse"/>
+
+          <!-- arrows out to pipelines -->
+          <line x1="338" y1="118" x2="370" y2="72" stroke="#4f8aff" stroke-width="1.2" class="flow-line-anim" marker-end="url(#ah1b)"/>
+          <line x1="338" y1="148" x2="370" y2="194" stroke="#4f8aff" stroke-width="1.2" class="flow-line-anim" marker-end="url(#ah1b)"/>
+
+          <!-- Pipeline A -->
+          <rect x="372" y="20" width="390" height="116" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="458" y="40" text-anchor="middle" font-size="11" font-weight="600" fill="#e8ecf4">Pipeline A</text>
+          <rect x="384" y="48" width="130" height="22" rx="5" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="396" y="63" font-size="11" fill="#e8ecf4">📄 pipeline.yaml</text>
+          <rect x="384" y="76" width="130" height="48" rx="5" fill="rgba(79,138,255,0.07)" stroke="rgba(79,138,255,0.35)" stroke-width="1"/>
+          <text x="396" y="93" font-size="11" font-weight="600" fill="#4f8aff">📁 resources/</text>
+          <text x="408" y="109" font-size="11" fill="#4f8aff">└ skill_a/</text>
+          <path d="M514 59 Q530 59 530 80 L530 90" fill="none" stroke="#4f8aff" stroke-width="0.8" stroke-dasharray="2 2" marker-end="url(#ah1b)"/>
+          <rect x="536" y="48" width="214" height="76" rx="8" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="643" y="67" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.05em">UI EDIT</text>
+          <text x="643" y="83" text-anchor="middle" font-size="11" fill="#c8d0e0">modifies this copy only</text>
+          <rect x="548" y="95" width="190" height="22" rx="4" fill="rgba(52,201,122,0.07)" stroke="rgba(52,201,122,0.2)" stroke-width="0.5"/>
+          <text x="643" y="110" text-anchor="middle" font-size="10" fill="#34c97a">pipeline A isolated · others unaffected</text>
+
+          <!-- Pipeline B -->
+          <rect x="372" y="152" width="390" height="110" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="458" y="172" text-anchor="middle" font-size="11" font-weight="600" fill="#e8ecf4">Pipeline B</text>
+          <rect x="384" y="180" width="130" height="22" rx="5" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="396" y="195" font-size="11" fill="#e8ecf4">📄 pipeline.yaml</text>
+          <rect x="384" y="208" width="130" height="46" rx="5" fill="rgba(79,138,255,0.07)" stroke="rgba(79,138,255,0.35)" stroke-width="1"/>
+          <text x="396" y="225" font-size="11" font-weight="600" fill="#4f8aff">📁 resources/</text>
+          <text x="408" y="242" font-size="11" fill="#4f8aff">└ cust_skill_x/</text>
+          <path d="M514 191 Q530 191 530 210 L530 220" fill="none" stroke="#4f8aff" stroke-width="0.8" stroke-dasharray="2 2" marker-end="url(#ah1b)"/>
+          <rect x="536" y="180" width="214" height="70" rx="8" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="643" y="200" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.05em">VERSIONED AS A UNIT</text>
+          <text x="643" y="218" text-anchor="middle" font-size="11" fill="#c8d0e0">pipeline.yaml + resources/</text>
+          <text x="643" y="236" text-anchor="middle" font-size="10" fill="#4a5580">version together per pipeline history</text>
+
+          <!-- legend -->
+          <line x1="14" y1="268" x2="38" y2="268" stroke="#4f8aff" stroke-width="1.5" stroke-dasharray="6 4"/>
+          <text x="44" y="272" font-size="11" fill="#7a8499">Copy flow — same for platform and repo skills</text>
+        </svg>
+      </div>
+      <div>
+        <div class="section-label">Advantages</div>
+        <div class="pros-cons">
+          <ul class="pros">
+            <li>Isolated per pipeline — editing one agent's copy never affects another</li>
+            <li>Flat, local structure — pipeline.yaml + resources/ version as one unit</li>
+            <li>Same mechanic for platform and customer repo skills, no special cases</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Drawbacks</div>
+        <div class="pros-cons">
+          <ul class="cons">
+            <li>No traceability — once copied, there's no pointer back to the source version</li>
+            <li>Bug fix in a platform skill must be re-linked or manually patched in every copy</li>
+            <li>Storage grows linearly with the number of links made</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: SERVING TO EXTERNAL SERVICES ── -->
+  <div class="sub-section">
+    <div class="sub-section-header accent-1">
+      <span class="sub-section-number">3</span>
+      <div>
+        <div class="sub-section-title">Serving Skills to External Services</div>
+        <div class="sub-section-desc">e.g. linking a skill from the library directly to Claude or another platform</div>
+      </div>
+    </div>
+    <div class="option-grid">
+      <div class="summary-card" style="grid-column:1/-1;margin-bottom:0;">
+        <p>
+          An external service points at a skill <strong>from the library</strong>, not from a pipeline copy.
+          The backend exposes an API endpoint reading from S3/RDS and serving the skill folder contents.
+          Since there is no version history, every consumer always gets the current "latest" — there is no way to pin to a specific version.
+          If someone edits the skill, the external consumer silently receives the updated version with no warning and no rollback path.
+          <br><br>
+          Enabling version pinning would require building versioning separately on top of S3/RDS (e.g. timestamped snapshots), adding significant complexity that isn't native to this model.
+        </p>
+      </div>
+      <div>
+        <div class="section-label">Advantages</div>
+        <div class="pros-cons">
+          <ul class="pros">
+            <li>Simple to expose — an API that reads from S3/RDS is straightforward to build</li>
+            <li>External consumers always get the latest automatically, no action needed</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Drawbacks</div>
+        <div class="pros-cons">
+          <ul class="cons">
+            <li>No stable reference — external consumers cannot pin to a specific version</li>
+            <li>Silent updates — a skill edit immediately affects all external consumers</li>
+            <li>No rollback if a bad update propagates to an external service</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: SELF-LEARNING SKILLS ── -->
+  <div class="sub-section">
+    <div class="sub-section-header accent-1">
+      <span class="sub-section-number">4</span>
+      <div>
+        <div class="sub-section-title">Self-Learning Skills</div>
+        <div class="sub-section-desc">Agents identify common patterns and automatically propose or create skills</div>
+      </div>
+    </div>
+    <div class="option-grid">
+      <div class="summary-card" style="grid-column:1/-1;margin-bottom:0;">
+        <p>
+          An agent writes a new skill folder directly to S3/RDS — a straightforward API call, no commit or PR needed.
+          The skill appears in the library immediately as "latest" alongside human-curated skills.
+          There is no built-in distinction between auto-generated and human-authored skills, and no creation history.
+          <br><br>
+          At scale a separate tagging or approval layer would be needed to avoid cluttering the library — this logic must be custom-built, as the model provides no native governance mechanism.
+        </p>
+      </div>
+      <div>
+        <div class="section-label">Advantages</div>
+        <div class="pros-cons">
+          <ul class="pros">
+            <li>Very easy to implement — agents write to S3/RDS via the existing backend</li>
+            <li>Skills surface in the library immediately, no intermediate step</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Drawbacks</div>
+        <div class="pros-cons">
+          <ul class="cons">
+            <li>No authorship or provenance — no way to tell what created a skill or when</li>
+            <li>No approval gate — auto-generated skills land directly in the library</li>
+            <li>Governance (review, approval, promotion) must be built from scratch</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="tab-content" id="content-opt2">
+
+  <div class="summary-card" style="margin-bottom:28px;">
+    <div class="section-label">Overview</div>
+    <p>
+      Skills live in a <strong>Git repository</strong> (platform-owned or customer-owned).
+      The Resources page shows the latest commit, but users can browse <strong>any prior version by commit SHA</strong>.
+      Linking a skill to an agent stores only a <strong>reference: file path + SHA</strong> — no duplication, and <strong>no change to the pipeline folder structure</strong>. The <code>pipeline.yaml</code> stays flat, pointing to an external ref rather than a local copy.
+      Whether edits can happen from the product UI is still an open question (they could create commits, or we could require repo-side changes only).
+      <br><br>
+      <strong>Scope:</strong> starting with skills, but the git-backed model would extend naturally to tools, templates, code components, and other resource types — each a versioned file or folder in the same repo.
+    </p>
+  </div>
+
+  <!-- ── PROBLEM 1: THE LIBRARY ── -->
+  <div class="sub-section">
+    <div class="sub-section-header accent-2">
+      <span class="sub-section-number">1</span>
+      <div>
+        <div class="sub-section-title">The Library</div>
+        <div class="sub-section-desc">How resources are stored, browsed, and versioned</div>
+      </div>
+    </div>
+    <div class="option-grid">
+      <div class="arch-section" style="grid-column:1/-1">
+        <div class="section-label">Git storage &amp; resources page</div>
+        <svg viewBox="0 0 780 248" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',sans-serif;">
+          <defs>
+            <marker id="ah2a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#7c5cfc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- Git repo (platform) -->
+          <rect x="14" y="16" width="174" height="214" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="101" y="36" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">GIT REPO (PLATFORM)</text>
+          <rect x="26" y="44" width="150" height="22" rx="4" fill="rgba(124,92,252,0.18)" stroke="rgba(124,92,252,0.35)" stroke-width="0.5"/>
+          <text x="36" y="59" font-size="10" fill="#7c5cfc" font-family="'IBM Plex Mono',monospace">a3f9c1d  HEAD</text>
+          <rect x="26" y="70" width="150" height="22" rx="4" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="36" y="85" font-size="10" fill="#7a8499" font-family="'IBM Plex Mono',monospace">b18e2a4  v1.2</text>
+          <rect x="26" y="96" width="150" height="22" rx="4" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="36" y="111" font-size="10" fill="#7a8499" font-family="'IBM Plex Mono',monospace">7d4c91f  v1.1</text>
+          <rect x="26" y="122" width="150" height="22" rx="4" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="36" y="137" font-size="10" fill="#7a8499" font-family="'IBM Plex Mono',monospace">0c3b55e  v1.0</text>
+          <line x1="101" y1="66" x2="101" y2="70" stroke="#4a5580" stroke-width="1"/>
+          <line x1="101" y1="92" x2="101" y2="96" stroke="#4a5580" stroke-width="1"/>
+          <line x1="101" y1="118" x2="101" y2="122" stroke="#4a5580" stroke-width="1"/>
+          <rect x="26" y="156" width="150" height="20" rx="4" fill="rgba(52,201,122,0.08)" stroke="rgba(52,201,122,0.25)" stroke-width="0.5"/>
+          <text x="101" y="170" text-anchor="middle" font-size="10" fill="#34c97a">full history preserved</text>
+          <rect x="26" y="182" width="150" height="36" rx="4" fill="rgba(124,92,252,0.08)" stroke="rgba(124,92,252,0.2)" stroke-width="0.5"/>
+          <text x="101" y="196" text-anchor="middle" font-size="10" fill="#7c5cfc">customer repos:</text>
+          <text x="101" y="210" text-anchor="middle" font-size="10" fill="#7a8499">same model, diff remote</text>
+
+          <!-- arrow to resources page -->
+          <line x1="188" y1="100" x2="228" y2="100" stroke="#7c5cfc" stroke-width="1.5" class="flow-line-anim" marker-end="url(#ah2a)"/>
+
+          <!-- Resources page -->
+          <rect x="230" y="16" width="210" height="214" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="335" y="36" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">RESOURCES PAGE</text>
+
+          <!-- skill_a with version selector -->
+          <rect x="242" y="44" width="186" height="48" rx="6" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="252" y="62" font-size="12" font-weight="600" fill="#e8ecf4">skill_a</text>
+          <text x="252" y="77" font-size="10" fill="#7a8499">NLP parser</text>
+          <rect x="368" y="50" width="52" height="16" rx="3" fill="rgba(124,92,252,0.15)" stroke="rgba(124,92,252,0.3)" stroke-width="0.5"/>
+          <text x="394" y="61" text-anchor="middle" font-size="8" font-weight="600" fill="#7c5cfc">a3f9c1d</text>
+          <!-- version picker hint -->
+          <text x="394" y="77" text-anchor="middle" font-size="9" fill="#4a5580">▾ history</text>
+
+          <!-- skill_b -->
+          <rect x="242" y="98" width="186" height="48" rx="6" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="252" y="116" font-size="12" font-weight="600" fill="#e8ecf4">skill_b</text>
+          <text x="252" y="131" font-size="10" fill="#7a8499">Summariser</text>
+          <rect x="368" y="104" width="52" height="16" rx="3" fill="rgba(124,92,252,0.15)" stroke="rgba(124,92,252,0.3)" stroke-width="0.5"/>
+          <text x="394" y="115" text-anchor="middle" font-size="8" font-weight="600" fill="#7c5cfc">b18e2a4</text>
+          <text x="394" y="131" text-anchor="middle" font-size="9" fill="#4a5580">▾ history</text>
+
+          <!-- edit TBD note -->
+          <rect x="242" y="156" width="186" height="32" rx="5" fill="rgba(239,159,39,0.07)" stroke="rgba(239,159,39,0.25)" stroke-width="0.5"/>
+          <text x="335" y="170" text-anchor="middle" font-size="10" fill="#ef9f27">UI editing: TBD</text>
+          <text x="335" y="183" text-anchor="middle" font-size="9" fill="#7a8499">auto-commit or repo-only?</text>
+
+          <!-- characteristics -->
+          <rect x="458" y="16" width="308" height="214" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="612" y="36" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">CHARACTERISTICS</text>
+
+          <rect x="470" y="46" width="284" height="30" rx="5" fill="rgba(52,201,122,0.06)" stroke="rgba(52,201,122,0.15)" stroke-width="0.5"/>
+          <text x="479" y="62" font-size="11" fill="#34c97a">+ Full version history on every skill</text>
+          <text x="479" y="76" font-size="10" fill="#7a8499">Browse and restore any past commit</text>
+
+          <rect x="470" y="90" width="284" height="30" rx="5" fill="rgba(52,201,122,0.06)" stroke="rgba(52,201,122,0.15)" stroke-width="0.5"/>
+          <text x="479" y="106" font-size="11" fill="#34c97a">+ Customer repos: native fit</text>
+          <text x="479" y="120" font-size="10" fill="#7a8499">Same git model, different remote</text>
+
+          <rect x="470" y="134" width="284" height="30" rx="5" fill="rgba(240,91,91,0.06)" stroke="rgba(240,91,91,0.15)" stroke-width="0.5"/>
+          <text x="479" y="150" font-size="11" fill="#f05b5b">− UI editing not yet decided</text>
+          <text x="479" y="164" font-size="10" fill="#7a8499">Auto-commit or repo-side only?</text>
+
+          <rect x="470" y="178" width="284" height="30" rx="5" fill="rgba(240,91,91,0.06)" stroke="rgba(240,91,91,0.15)" stroke-width="0.5"/>
+          <text x="479" y="194" font-size="11" fill="#f05b5b">− Git infra required</text>
+          <text x="479" y="208" font-size="10" fill="#7a8499">Self-hosted or vendor-managed</text>
+        </svg>
+      </div>
+      <div>
+        <div class="section-label">Advantages</div>
+        <div class="pros-cons">
+          <ul class="pros">
+            <li>Full version history — users can browse, compare, and restore any past version of a skill</li>
+            <li>Customer repos integrate natively — same git model, just a different remote</li>
+            <li>Audit trail built-in — every change is attributed and timestamped</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Drawbacks</div>
+        <div class="pros-cons">
+          <ul class="cons">
+            <li>Git infrastructure must be provisioned and maintained</li>
+            <li>UI editing path is unresolved — auto-committing adds complexity</li>
+            <li>Non-engineers face git/SHA concepts when browsing history</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROBLEM 2: LINKING ── -->
+  <div class="sub-section">
+    <div class="sub-section-header accent-2">
+      <span class="sub-section-number">2</span>
+      <div>
+        <div class="sub-section-title">Linking to a Pipeline</div>
+        <div class="sub-section-desc">What happens when a resource is added to an agent</div>
+      </div>
+    </div>
+    <div class="option-grid">
+      <div class="arch-section" style="grid-column:1/-1">
+        <div class="section-label">SHA reference model · pipeline stays flat</div>
+        <svg viewBox="0 0 780 248" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',sans-serif;">
+          <defs>
+            <marker id="ah2b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#7c5cfc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- Git repo source -->
+          <rect x="14" y="20" width="148" height="140" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="88" y="40" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">GIT REPO</text>
+          <rect x="26" y="48" width="124" height="20" rx="4" fill="rgba(124,92,252,0.18)" stroke="rgba(124,92,252,0.35)" stroke-width="0.5"/>
+          <text x="36" y="62" font-size="10" fill="#7c5cfc" font-family="'IBM Plex Mono',monospace">a3f9c1d HEAD</text>
+          <rect x="26" y="72" width="124" height="20" rx="4" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="36" y="86" font-size="10" fill="#7a8499" font-family="'IBM Plex Mono',monospace">7d4c91f  v1.1</text>
+          <rect x="26" y="96" width="124" height="20" rx="4" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="36" y="110" font-size="10" fill="#7a8499" font-family="'IBM Plex Mono',monospace">0c3b55e  v1.0</text>
+          <line x1="88" y1="68" x2="88" y2="72" stroke="#4a5580" stroke-width="1"/>
+          <line x1="88" y1="92" x2="88" y2="96" stroke="#4a5580" stroke-width="1"/>
+          <rect x="26" y="126" width="124" height="22" rx="4" fill="rgba(52,201,122,0.07)" stroke="rgba(52,201,122,0.2)" stroke-width="0.5"/>
+          <text x="88" y="141" text-anchor="middle" font-size="10" fill="#34c97a">no copy made</text>
+
+          <!-- ref arrows to pipelines -->
+          <line x1="162" y1="62" x2="220" y2="80" stroke="#7c5cfc" stroke-width="1.5" class="flow-line-anim" marker-end="url(#ah2b)"/>
+          <line x1="162" y1="86" x2="220" y2="156" stroke="#7c5cfc" stroke-width="1.2" class="flow-line-anim-slow" marker-end="url(#ah2b)"/>
+          <text x="182" y="76" font-size="10" fill="#7c5cfc">ref</text>
+
+          <!-- Pipeline A -->
+          <rect x="222" y="20" width="252" height="120" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="310" y="40" text-anchor="middle" font-size="11" font-weight="600" fill="#e8ecf4">Pipeline A</text>
+          <rect x="234" y="48" width="228" height="22" rx="5" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="246" y="63" font-size="11" fill="#e8ecf4">📄 pipeline.yaml</text>
+          <rect x="234" y="76" width="228" height="52" rx="5" fill="rgba(52,201,122,0.06)" stroke="rgba(52,201,122,0.2)" stroke-width="0.5"/>
+          <text x="246" y="94" font-size="10" font-weight="600" fill="#34c97a">no resources/ folder</text>
+          <text x="246" y="110" font-size="10" fill="#7c5cfc" font-family="'IBM Plex Mono',monospace">skill_a @ a3f9c1d</text>
+          <text x="246" y="124" font-size="9" fill="#4a5580">pointer only — pipeline.yaml stays flat</text>
+
+          <!-- Pipeline B -->
+          <rect x="222" y="152" width="252" height="82" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="310" y="172" text-anchor="middle" font-size="11" font-weight="600" fill="#e8ecf4">Pipeline B</text>
+          <rect x="234" y="180" width="228" height="22" rx="5" fill="#141928" stroke="#2a3147" stroke-width="0.5"/>
+          <text x="246" y="195" font-size="11" fill="#e8ecf4">📄 pipeline.yaml</text>
+          <rect x="234" y="208" width="228" height="20" rx="5" fill="rgba(52,201,122,0.06)" stroke="rgba(52,201,122,0.2)" stroke-width="0.5"/>
+          <text x="246" y="222" font-size="10" fill="#7c5cfc" font-family="'IBM Plex Mono',monospace">skill_a @ 7d4c91f</text>
+
+          <!-- characteristics -->
+          <rect x="490" y="20" width="276" height="214" rx="10" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+          <text x="628" y="40" text-anchor="middle" font-size="10" font-weight="600" fill="#7a8499" letter-spacing="0.07em">CHARACTERISTICS</text>
+
+          <rect x="502" y="50" width="252" height="30" rx="5" fill="rgba(52,201,122,0.06)" stroke="rgba(52,201,122,0.15)" stroke-width="0.5"/>
+          <text x="511" y="66" font-size="11" fill="#34c97a">+ No copy — pointer only</text>
+          <text x="511" y="80" font-size="10" fill="#7a8499">Zero storage overhead</text>
+
+          <rect x="502" y="94" width="252" height="30" rx="5" fill="rgba(52,201,122,0.06)" stroke="rgba(52,201,122,0.15)" stroke-width="0.5"/>
+          <text x="511" y="110" font-size="11" fill="#34c97a">+ Deterministic</text>
+          <text x="511" y="124" font-size="10" fill="#7a8499">Same SHA = same behaviour always</text>
+
+          <rect x="502" y="138" width="252" height="30" rx="5" fill="rgba(240,91,91,0.06)" stroke="rgba(240,91,91,0.15)" stroke-width="0.5"/>
+          <text x="511" y="154" font-size="11" fill="#f05b5b">− Pipelines don't auto-update</text>
+          <text x="511" y="168" font-size="10" fill="#7a8499">Must re-point SHA to get a newer version</text>
+
+          <rect x="502" y="182" width="252" height="30" rx="5" fill="rgba(240,91,91,0.06)" stroke="rgba(240,91,91,0.15)" stroke-width="0.5"/>
+          <text x="511" y="198" font-size="11" fill="#f05b5b">− Two pipelines can run different versions</text>
+          <text x="511" y="212" font-size="10" fill="#7a8499">Intentional but requires awareness</text>
+
+          <!-- legend -->
+          <line x1="14" y1="236" x2="38" y2="236" stroke="#7c5cfc" stroke-width="1.5" stroke-dasharray="6 4"/>
+          <text x="44" y="240" font-size="11" fill="#7a8499">SHA reference — pointer, no copy, pipeline.yaml stays flat</text>
+        </svg>
+      </div>
+      <div>
+        <div class="section-label">Advantages</div>
+        <div class="pros-cons">
+          <ul class="pros">
+            <li>No duplication — the repo is the single source of truth, linking is just a pointer</li>
+            <li>Deterministic — same SHA always resolves to identical code</li>
+            <li>Different pipelines can deliberately pin to different versions</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Drawbacks</div>
+        <div class="pros-cons">
+          <ul class="cons">
+            <li>Pipelines don't auto-update — a bug fix requires manually re-pointing each SHA</li>
+            <li>SHA management adds cognitive overhead for non-engineers</li>
+            <li>More complex to build: resources page needs diff view, version picker, etc.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="considerations" style="grid-column:1/-1">
+        <div class="considerations-title">⚙ Open questions</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="open-question">
+            <span class="q-icon">❓</span>
+            <p><strong>Customer repo topology:</strong> one repo per customer (clean isolation, more repos to manage) or one shared repo with subfolders (simpler ops, but access control per subfolder is harder to enforce cleanly)?</p>
+          </div>
+          <div class="open-question">
+            <span class="q-icon">❓</span>
+            <p><strong>UI editing:</strong> do we let users edit in-product and auto-commit, or keep the repo as the only write path? Big UX and complexity tradeoff.</p>
+          </div>
+          <div class="open-question">
+            <span class="q-icon">❓</span>
+            <p><strong>Platform repo provider:</strong> self-hosted Gitea, GitHub-backed, or something else? Affects cost, maintenance, and customer SSO/auth story.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: SERVING TO EXTERNAL SERVICES ── -->
+  <div class="sub-section">
+    <div class="sub-section-header accent-2">
+      <span class="sub-section-number">3</span>
+      <div>
+        <div class="sub-section-title">Serving Skills to External Services</div>
+        <div class="sub-section-desc">e.g. linking a skill from the library directly to Claude or another platform</div>
+      </div>
+    </div>
+    <div class="option-grid">
+      <div class="summary-card" style="grid-column:1/-1;margin-bottom:0;">
+        <p>
+          An external service points at a skill <strong>from the library</strong> using a stable reference: <code>skill_a@a3f9c1d</code>.
+          The SHA is an immutable identifier — the external consumer is guaranteed to always receive the exact same artifact regardless of what happens to the skill later.
+          You can also expose <code>skill_a@latest</code> as a moving pointer for consumers who want to always get the newest version.
+          <br><br>
+          This is the same model used by npm, PyPI, and HuggingFace. The git repo becomes a lightweight registry with no extra infrastructure needed beyond the serving API.
+        </p>
+      </div>
+      <div>
+        <div class="section-label">Advantages</div>
+        <div class="pros-cons">
+          <ul class="pros">
+            <li>Stable, immutable references — external consumers can pin to an exact SHA</li>
+            <li>Choice of pinned or latest — consumer decides how much stability they need</li>
+            <li>No extra versioning infrastructure — git history is the registry</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Drawbacks</div>
+        <div class="pros-cons">
+          <ul class="cons">
+            <li>External consumers on a pinned SHA won't receive bug fixes automatically</li>
+            <li>Serving API needs to resolve SHAs and stream folder contents from git</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: SELF-LEARNING SKILLS ── -->
+  <div class="sub-section">
+    <div class="sub-section-header accent-2">
+      <span class="sub-section-number">4</span>
+      <div>
+        <div class="sub-section-title">Self-Learning Skills</div>
+        <div class="sub-section-desc">Agents identify common patterns and automatically propose or create skills</div>
+      </div>
+    </div>
+    <div class="option-grid">
+      <div class="summary-card" style="grid-column:1/-1;margin-bottom:0;">
+        <p>
+          An agent creates a new skill by opening a commit — or a branch and PR — in the git repo.
+          This gives every auto-generated skill full authorship, a timestamp, a diff, and a complete trail of what changed.
+          A human approval step can be enforced before the skill is merged and visible in the library, keeping auto-generated and curated skills clearly separated.
+          <br><br>
+          The write path is more complex than a direct S3 write, but the governance comes for free from git's native model — no custom approval infrastructure needed.
+        </p>
+      </div>
+      <div>
+        <div class="section-label">Advantages</div>
+        <div class="pros-cons">
+          <ul class="pros">
+            <li>Full provenance — every auto-generated skill has authorship, timestamp, and diff</li>
+            <li>Native approval gate — PR review before a skill is promoted to the library</li>
+            <li>Auto-generated and human-authored skills are naturally distinguishable</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Drawbacks</div>
+        <div class="pros-cons">
+          <ul class="cons">
+            <li>More complex write path — agents need to commit to a repo, not just write a file</li>
+            <li>PR-based approval adds latency before a skill is usable</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+<!-- ══════════════════════ COMPARE ══════════════════════ -->
+<div class="tab-content" id="content-compare">
+
+  <div class="radar-wrap">
+    <div class="section-label" style="margin-bottom:16px">Multi-dimension comparison</div>
+    <canvas id="radarChart" style="max-height:360px;display:block;margin:0 auto;"></canvas>
+    <div class="radar-legend">
+      <div class="radar-legend-item">
+        <div class="legend-dot" style="background:#4f8aff"></div>
+        Option 1 — Copy on link
+      </div>
+      <div class="radar-legend-item">
+        <div class="legend-dot" style="background:#7c5cfc"></div>
+        Option 2 — Git-backed
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-bottom:16px">Side-by-side comparison</div>
+  <div class="compare-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Option 1 — Copy on link</th>
+          <th>Option 2 — Git-backed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Storage</td><td class="opt-1">S3 / RDS — copies per agent</td><td class="opt-2">Git repo — single source, SHA refs</td></tr>
+        <tr><td>Versioning</td><td>No — "latest" only</td><td class="opt-2">Full history via commit SHAs</td></tr>
+        <tr><td>Agent link</td><td class="opt-1">Full copy of skill folder</td><td class="opt-2">Pointer: file path + SHA</td></tr>
+        <tr><td>UI editing</td><td class="opt-1">Native — edit the agent's copy directly</td><td>TBD — auto-commit or repo-only?</td></tr>
+        <tr><td>Rollback</td><td>Not possible</td><td class="opt-2">Yes — repoint to any prior SHA</td></tr>
+        <tr><td>Isolation</td><td class="opt-1">Full — each agent has its own copy</td><td>Shared by default; SHA pins per agent</td></tr>
+        <tr><td>Bug-fix propagation</td><td>Manual — update each copy</td><td class="opt-2">Update SHA ref in each agent</td></tr>
+        <tr><td>Customer repos</td><td>Copy on link from customer repo</td><td class="opt-2">Native — same model, just different remote</td></tr>
+        <tr><td>Infrastructure</td><td class="opt-1">Existing S3/RDS only</td><td>Needs Git service (self-hosted or vendor)</td></tr>
+        <tr><td>Non-engineer UX</td><td class="opt-1">Straightforward — no git concepts</td><td>Depends heavily on UI edit decision</td></tr>
+        <tr><td>Build complexity</td><td class="opt-1">Low — simpler to ship first</td><td>Higher — more surface to design and build</td></tr>
+        <tr><td>Future-proofing</td><td>Harder to retrofit versioning later</td><td class="opt-2">Solid foundation for a library product</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+</div><!-- /page-wrap -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  // ── Radar chart ──
+  const radarLabels = ['UX simplicity','Build speed','Future-proofing','Versioning','Isolation','Customer repo fit','Auditability'];
+  const radarData1 = [5, 5, 2, 1, 5, 3, 2];
+  const radarData2 = [3, 2, 5, 5, 3, 5, 5];
+
+  const radarCtx = document.getElementById('radarChart').getContext('2d');
+  new Chart(radarCtx, {
+    type: 'radar',
+    data: {
+      labels: radarLabels,
+      datasets: [
+        { label: 'Option 1', data: radarData1, backgroundColor: 'rgba(79,138,255,0.15)', borderColor: '#4f8aff', borderWidth: 2, pointBackgroundColor: '#4f8aff', pointRadius: 4, pointHoverRadius: 6 },
+        { label: 'Option 2', data: radarData2, backgroundColor: 'rgba(124,92,252,0.15)', borderColor: '#7c5cfc', borderWidth: 2, pointBackgroundColor: '#7c5cfc', pointRadius: 4, pointHoverRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 800, easing: 'easeInOutQuart' },
+      scales: {
+        r: {
+          min: 0, max: 5,
+          ticks: { stepSize: 1, display: false },
+          grid: { color: 'rgba(42,49,71,0.9)' },
+          angleLines: { color: 'rgba(42,49,71,0.9)' },
+          pointLabels: { font: { family: "'Inter', sans-serif", size: 12 }, color: '#7a8499' }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#181c27', borderColor: '#2a3147', borderWidth: 1,
+          titleColor: '#e8ecf4', bodyColor: '#7a8499',
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}/5` }
+        }
+      }
+    }
+  });
+
+  // ── Tab switching ──
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active-1','active-2','active-c'));
+    document.getElementById('content-' + tab).classList.add('active');
+    const btn = document.getElementById('tab-' + tab);
+    if (tab === 'opt1') btn.classList.add('active-1');
+    else if (tab === 'opt2') btn.classList.add('active-2');
+    else btn.classList.add('active-c');
+  }
+</script>
+</body>
+</html>
