@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills Library — Architecture & Implementation Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface-2: #1e2436;
+    --border: #2a3147;
+    --border-active: #4a5580;
+    --text: #e8ecf4;
+    --muted: #7a8499;
+    --accent: #7c5cfc;
+    --accent-dim: rgba(124,92,252,0.12);
+    --accent-border: rgba(124,92,252,0.3);
+    --green: #34c97a;
+    --green-dim: rgba(52,201,122,0.1);
+    --green-border: rgba(52,201,122,0.3);
+    --yellow: #ef9f27;
+    --yellow-dim: rgba(239,159,39,0.08);
+    --yellow-border: rgba(239,159,39,0.3);
+    --red: #f05b5b;
+    --blue: #4f8aff;
+    --blue-dim: rgba(79,138,255,0.1);
+    --blue-border: rgba(79,138,255,0.3);
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  .page-wrap { max-width: 1100px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 36px 48px 30px;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .eyebrow::before {
+    content: ''; display: inline-block;
+    width: 20px; height: 1px; background: var(--muted);
+  }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+  .header-meta {
+    display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap;
+  }
+  .meta-pill {
+    font-family: var(--mono); font-size: 11px;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 4px 10px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .meta-pill span { color: var(--text); font-weight: 500; }
+
+  /* ── Nav ── */
+  .toc {
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .toc a {
+    font-size: 13px; color: var(--muted);
+    text-decoration: none; padding: 5px 12px;
+    border: 1px solid var(--border); border-radius: 4px;
+    transition: color 0.15s, border-color 0.15s;
+    font-family: var(--mono);
+  }
+  .toc a:hover { color: var(--text); border-color: var(--border-active); }
+
+  /* ── Sections ── */
+  .section { padding: 48px 48px 0; }
+  .section + .section { padding-top: 56px; }
+
+  .section-eyebrow {
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-eyebrow::before {
+    content: ''; display: inline-block;
+    width: 24px; height: 1px; background: var(--accent);
+  }
+  h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 16px; }
+  h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+  h4 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; font-family: var(--mono); margin-bottom: 8px; }
+
+  p { font-size: 14px; line-height: 1.75; color: #c8d0e0; }
+  p + p { margin-top: 10px; }
+
+  /* ── Cards & layout ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px;
+    margin-top: 20px;
+  }
+  .card-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-top: 20px;
+  }
+  .card-grid-3 {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px; margin-top: 20px;
+  }
+  .card.accent { border-color: var(--accent-border); background: var(--accent-dim); }
+  .card.green { border-color: var(--green-border); background: var(--green-dim); }
+  .card.yellow { border-color: var(--yellow-border); background: var(--yellow-dim); }
+  .card.blue { border-color: var(--blue-border); background: var(--blue-dim); }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #090c14; border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px 24px;
+    font-family: var(--mono); font-size: 12.5px;
+    line-height: 1.7; overflow-x: auto;
+    margin-top: 12px; color: #c8d0e0;
+  }
+  code { font-family: var(--mono); font-size: 12px; }
+  .kw { color: #7c5cfc; }
+  .str { color: #34c97a; }
+  .cm { color: #4a5580; font-style: italic; }
+  .key { color: #4f8aff; }
+  .val { color: #ef9f27; }
+  .inline-code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 3px; padding: 1px 6px; color: #c8d0e0;
+  }
+
+  /* ── Data flow diagram ── */
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 28px 24px; margin-top: 20px;
+    overflow-x: auto;
+  }
+  .diagram-wrap svg { display: block; width: 100%; min-width: 700px; }
+
+  @keyframes dashflow { to { stroke-dashoffset: -20; } }
+  .flow-anim { stroke-dasharray: 5 3; animation: dashflow 1.4s linear infinite; }
+  @keyframes pulse-ring { 0% { r: 4; opacity: 0.8; } 100% { r: 10; opacity: 0; } }
+  .pulse { animation: pulse-ring 2s ease-out infinite; }
+
+  /* ── Phase timeline ── */
+  .phases { margin-top: 24px; display: flex; flex-direction: column; gap: 0; }
+  .phase {
+    display: grid; grid-template-columns: 160px 1fr;
+    gap: 24px; padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase:last-child { border-bottom: none; }
+  .phase-label { }
+  .phase-tag {
+    font-family: var(--mono); font-size: 10px;
+    font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; border-radius: 4px;
+    padding: 3px 8px; display: inline-block; margin-bottom: 6px;
+  }
+  .phase-tag.p1 { background: rgba(124,92,252,0.15); color: var(--accent); }
+  .phase-tag.p2 { background: rgba(79,138,255,0.15); color: var(--blue); }
+  .phase-tag.p3 { background: rgba(52,201,122,0.15); color: var(--green); }
+  .phase-tag.p4 { background: rgba(239,159,39,0.15); color: var(--yellow); }
+  .phase-duration { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .phase-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .phase-items { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .phase-items li {
+    font-size: 13.5px; color: #c8d0e0; line-height: 1.5;
+    padding-left: 16px; position: relative;
+  }
+  .phase-items li::before {
+    content: '→'; position: absolute; left: 0;
+    color: var(--muted); font-family: var(--mono); font-size: 11px;
+    top: 2px;
+  }
+  .phase-items li strong { color: var(--text); }
+
+  /* ── Entity table ── */
+  .data-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13.5px; }
+  .data-table th {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted);
+    text-align: left; padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .data-table td {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    vertical-align: top; line-height: 1.5; color: #c8d0e0;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+  .data-table td code { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* ── Risk table ── */
+  .risk-tag {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    border-radius: 3px; padding: 2px 6px;
+  }
+  .risk-high { background: rgba(240,91,91,0.15); color: var(--red); }
+  .risk-med { background: rgba(239,159,39,0.15); color: var(--yellow); }
+  .risk-low { background: rgba(52,201,122,0.15); color: var(--green); }
+
+  /* ── Endpoint list ── */
+  .endpoint {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .endpoint:last-child { border-bottom: none; }
+  .method {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    border-radius: 3px; padding: 2px 7px;
+    min-width: 48px; text-align: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .get { background: rgba(52,201,122,0.15); color: var(--green); }
+  .post { background: rgba(79,138,255,0.15); color: var(--blue); }
+  .del { background: rgba(240,91,91,0.15); color: var(--red); }
+  .endpoint-path { font-family: var(--mono); font-size: 12.5px; color: var(--text); }
+  .endpoint-desc { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  /* ── Section divider ── */
+  .divider {
+    margin: 0 48px;
+    border: none; border-top: 1px solid var(--border);
+    margin-top: 56px;
+  }
+
+  @media (max-width: 900px) {
+    .section { padding: 36px 24px 0; }
+    .header, .toc { padding-left: 24px; padding-right: 24px; }
+    .card-grid, .card-grid-3 { grid-template-columns: 1fr; }
+    .phase { grid-template-columns: 1fr; gap: 8px; }
+    .divider { margin: 0 24px; margin-top: 48px; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="eyebrow">Technical Specification</div>
+  <h1>Skills Library — Architecture &amp; Implementation Plan</h1>
+  <div class="header-meta">
+    <div class="meta-pill">Approach <span>Option 2 — Git-backed</span></div>
+    <div class="meta-pill">Status <span>Draft</span></div>
+    <div class="meta-pill">Scope <span>Library · Linking · Serving · Self-learning</span></div>
+  </div>
+</div>
+
+<!-- ── TOC ── -->
+<nav class="toc">
+  <a href="#overview">Overview</a>
+  <a href="#data-model">Data Model</a>
+  <a href="#data-flow">Data Flow</a>
+  <a href="#api">API Endpoints</a>
+  <a href="#git-provider">Git Provider</a>
+  <a href="#caching">Caching</a>
+  <a href="#pipeline-linking">Pipeline Linking</a>
+  <a href="#external-serving">External Serving</a>
+  <a href="#risks">Risks</a>
+</nav>
+
+
+<!-- ══════════════════════════════════════════
+     1. OVERVIEW
+══════════════════════════════════════════ -->
+<div class="section" id="overview">
+  <div class="section-eyebrow">01</div>
+  <h2>Overview</h2>
+  <p>
+    The Skills Library is a centralised repository of reusable resources — starting with skills, expanding later to tools, templates, and code components.
+    Each resource is a folder of files (scripts, config, instructions) stored in a Git repository.
+    The platform reads from git on demand, caches content at link time, and never fetches from git during pipeline execution.
+  </p>
+  <p>
+    Customer-owned repositories can be connected; they surface alongside platform skills in the library UI and follow the same link-and-cache mechanic.
+    Skills can also be served externally to other services via a stable API using SHA references.
+  </p>
+
+  <div class="card-grid-3">
+    <div class="card accent">
+      <h4>Library</h4>
+      <p style="font-size:13px;">Git repo as source of truth. Resources browsed on-demand via provider API. Version history visible. No data stored locally except cached snapshots.</p>
+    </div>
+    <div class="card accent">
+      <h4>Pipeline Linking</h4>
+      <p style="font-size:13px;">At link time: fetch from git, cache content, store SHA reference in pipeline definition. At run time: read from cache only. Zero runtime dependency on git.</p>
+    </div>
+    <div class="card accent">
+      <h4>External Serving</h4>
+      <p style="font-size:13px;">API endpoint serves skill content by name + SHA. Consumers can pin to a specific version or request latest. Content is served from cache, not git directly.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+
+<!-- ══════════════════════════════════════════
+     2. DATA MODEL
+══════════════════════════════════════════ -->
+<div class="section" id="data-model">
+  <div class="section-eyebrow">02</div>
+  <h2>Data Model</h2>
+  <p>These are the core entities stored in the platform database (Postgres/RDS). Git content itself is never stored in full — only metadata and cached snapshots.</p>
+
+  <div class="card" style="margin-top:20px;overflow:hidden;padding:0;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Entity</th>
+          <th>Key Fields</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>repo_connection</td>
+          <td><code>id, org_id, provider (github|gitlab), repo_url, encrypted_token, token_type (pat|oauth|app), created_at</code></td>
+          <td>One per connected repo. Token stored encrypted via KMS. Never returned in API responses.</td>
+        </tr>
+        <tr>
+          <td>skill_cache</td>
+          <td><code>id, repo_connection_id, skill_path, sha, files (jsonb), cached_at, expires_at</code></td>
+          <td>Immutable once written. Keyed by repo + path + SHA. Content stored as JSON map of filename → base64 content.</td>
+        </tr>
+        <tr>
+          <td>pipeline_skill_ref</td>
+          <td><code>id, pipeline_id, skill_name, repo_connection_id, skill_path, pinned_sha, linked_at</code></td>
+          <td>Created at link time. Stores the SHA pinned at that moment. Backend resolves the cache entry at runtime using repo + path + sha — no cache_id stored in the YAML or ref.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3>Pipeline YAML — skill reference format</h3>
+    <p>The pipeline definition stays flat. No <span class="inline-code">resources/</span> folder. The YAML stores only the path and pinned SHA — the backend resolves the cache entry from those two values at runtime. No internal IDs leak into the pipeline definition.</p>
+    <pre><span class="key">name</span>: <span class="str">my-pipeline</span>
+<span class="key">version</span>: <span class="str">1.0.0</span>
+
+<span class="key">skills</span>:
+  - <span class="key">name</span>: <span class="str">skill_a</span>
+    <span class="key">source</span>: <span class="str">platform</span>          <span class="cm"># or "repo" for customer-connected repos</span>
+    <span class="key">path</span>: <span class="str">skills/skill_a</span>
+    <span class="key">sha</span>: <span class="str">a3f9c1d</span>             <span class="cm"># pinned at link time, never changes</span>
+
+  - <span class="key">name</span>: <span class="str">cust_skill_x</span>
+    <span class="key">source</span>: <span class="str">repo</span>
+    <span class="key">repo_connection_id</span>: <span class="str">rc_09az...</span>
+    <span class="key">path</span>: <span class="str">skills/cust_skill_x</span>
+    <span class="key">sha</span>: <span class="str">7d4c91f</span></pre>
+  </div>
+</div>
+
+<hr class="divider">
+
+
+<!-- ══════════════════════════════════════════
+     3. DATA FLOW
+══════════════════════════════════════════ -->
+<div class="section" id="data-flow">
+  <div class="section-eyebrow">03</div>
+  <h2>Data Flow</h2>
+  <p>There are four distinct flows. Git is only involved in flows 1 and 2. Flows 3 and 4 read from cache only.</p>
+
+  <!-- Flow A: Browse library -->
+  <div class="diagram-wrap" style="margin-top:24px;">
+    <h4 style="margin-bottom:16px;">Flow A — Browse the library</h4>
+    <svg viewBox="0 0 900 110" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',sans-serif;">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#7c5cfc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+        <marker id="a1g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#34c97a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <rect x="10" y="30" width="110" height="44" rx="7" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+      <text x="65" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="#e8ecf4">User</text>
+      <text x="65" y="68" text-anchor="middle" font-size="10" fill="#7a8499">opens library</text>
+
+      <line x1="120" y1="52" x2="168" y2="52" stroke="#7c5cfc" stroke-width="1.4" class="flow-anim" marker-end="url(#a1)"/>
+
+      <rect x="170" y="30" width="130" height="44" rx="7" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+      <text x="235" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="#e8ecf4">Backend</text>
+      <text x="235" y="68" text-anchor="middle" font-size="10" fill="#7a8499">GET /library</text>
+
+      <line x1="300" y1="52" x2="348" y2="52" stroke="#7c5cfc" stroke-width="1.4" class="flow-anim" marker-end="url(#a1)"/>
+      <text x="324" y="44" text-anchor="middle" font-size="10" fill="#7c5cfc">list folders</text>
+
+      <rect x="350" y="30" width="140" height="44" rx="7" fill="#1e2436" stroke="rgba(124,92,252,0.4)" stroke-width="1"/>
+      <text x="420" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="#7c5cfc">Git Provider</text>
+      <text x="420" y="68" text-anchor="middle" font-size="10" fill="#7a8499">platform repo</text>
+
+      <line x1="490" y1="52" x2="538" y2="52" stroke="#34c97a" stroke-width="1.4" class="flow-anim" marker-end="url(#a1g)"/>
+      <text x="514" y="44" text-anchor="middle" font-size="10" fill="#34c97a">folder list</text>
+
+      <rect x="540" y="30" width="140" height="44" rx="7" fill="#1e2436" stroke="rgba(124,92,252,0.4)" stroke-width="1"/>
+      <text x="610" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="#7c5cfc">Customer Repo</text>
+      <text x="610" y="68" text-anchor="middle" font-size="10" fill="#7a8499">(if connected)</text>
+
+      <line x1="680" y1="52" x2="728" y2="52" stroke="#34c97a" stroke-width="1.4" class="flow-anim" marker-end="url(#a1g)"/>
+      <text x="704" y="44" text-anchor="middle" font-size="10" fill="#34c97a">merged list</text>
+
+      <rect x="730" y="30" width="130" height="44" rx="7" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+      <text x="795" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="#e8ecf4">Library UI</text>
+      <text x="795" y="68" text-anchor="middle" font-size="10" fill="#7a8499">renders cards</text>
+
+      <text x="10" y="105" font-size="10" fill="#4a5580">⚠ If git is unreachable, show cached list or error state. No pipeline execution is affected.</text>
+    </svg>
+  </div>
+
+  <!-- Flow B: Link skill -->
+  <div class="diagram-wrap" style="margin-top:16px;">
+    <h4 style="margin-bottom:16px;">Flow B — Link a skill to a pipeline</h4>
+    <svg viewBox="0 0 900 130" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',sans-serif;">
+      <defs>
+        <marker id="b1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#7c5cfc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+        <marker id="b1g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#34c97a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <rect x="10" y="30" width="100" height="44" rx="7" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+      <text x="60" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="#e8ecf4">User</text>
+      <text x="60" y="68" text-anchor="middle" font-size="10" fill="#7a8499">clicks "Link"</text>
+
+      <line x1="110" y1="52" x2="148" y2="52" stroke="#7c5cfc" stroke-width="1.4" class="flow-anim" marker-end="url(#b1)"/>
+
+      <rect x="150" y="14" width="120" height="76" rx="7" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+      <text x="210" y="40" text-anchor="middle" font-size="12" font-weight="600" fill="#e8ecf4">Backend</text>
+      <text x="210" y="56" text-anchor="middle" font-size="10" fill="#7a8499">POST /link</text>
+      <text x="210" y="72" text-anchor="middle" font-size="10" fill="#7a8499">resolve HEAD SHA</text>
+      <text x="210" y="85" text-anchor="middle" font-size="10" fill="#7a8499">fetch + cache</text>
+
+      <line x1="270" y1="52" x2="308" y2="52" stroke="#7c5cfc" stroke-width="1.4" class="flow-anim" marker-end="url(#b1)"/>
+      <text x="289" y="44" text-anchor="middle" font-size="10" fill="#7c5cfc">fetch files</text>
+
+      <rect x="310" y="30" width="130" height="44" rx="7" fill="#1e2436" stroke="rgba(124,92,252,0.4)" stroke-width="1"/>
+      <text x="375" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="#7c5cfc">Git Provider</text>
+      <text x="375" y="68" text-anchor="middle" font-size="10" fill="#7a8499">path @ sha</text>
+
+      <line x1="440" y1="52" x2="478" y2="52" stroke="#34c97a" stroke-width="1.4" class="flow-anim" marker-end="url(#b1g)"/>
+      <text x="459" y="44" text-anchor="middle" font-size="10" fill="#34c97a">files</text>
+
+      <rect x="480" y="30" width="120" height="44" rx="7" fill="#1e2436" stroke="rgba(52,201,122,0.4)" stroke-width="1"/>
+      <text x="540" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="#34c97a">skill_cache</text>
+      <text x="540" y="68" text-anchor="middle" font-size="10" fill="#7a8499">write once</text>
+
+      <line x1="600" y1="52" x2="638" y2="52" stroke="#34c97a" stroke-width="1.4" class="flow-anim" marker-end="url(#b1g)"/>
+      <text x="619" y="44" text-anchor="middle" font-size="10" fill="#34c97a">cache_id</text>
+
+      <rect x="640" y="30" width="140" height="44" rx="7" fill="#1e2436" stroke="rgba(52,201,122,0.4)" stroke-width="1"/>
+      <text x="710" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="#34c97a">pipeline_skill_ref</text>
+      <text x="710" y="68" text-anchor="middle" font-size="10" fill="#7a8499">path + sha + cache_id</text>
+
+      <text x="10" y="122" font-size="10" fill="#4a5580">✓ After this step, git is never touched again for this skill version. The pipeline owns an immutable cached snapshot.</text>
+    </svg>
+  </div>
+
+  <!-- Flow C: Run pipeline -->
+  <div class="diagram-wrap" style="margin-top:16px;">
+    <h4 style="margin-bottom:16px;">Flow C — Run a pipeline</h4>
+    <svg viewBox="0 0 900 100" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',sans-serif;">
+      <defs>
+        <marker id="c1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#4f8aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <rect x="10" y="22" width="130" height="44" rx="7" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+      <text x="75" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="#e8ecf4">Pipeline Runner</text>
+      <text x="75" y="60" text-anchor="middle" font-size="10" fill="#7a8499">reads pipeline.yaml</text>
+
+      <line x1="140" y1="44" x2="188" y2="44" stroke="#4f8aff" stroke-width="1.4" class="flow-anim" marker-end="url(#c1)"/>
+      <text x="164" y="36" text-anchor="middle" font-size="10" fill="#4f8aff">cache_id</text>
+
+      <rect x="190" y="22" width="120" height="44" rx="7" fill="#1e2436" stroke="rgba(52,201,122,0.4)" stroke-width="1"/>
+      <text x="250" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="#34c97a">skill_cache</text>
+      <text x="250" y="60" text-anchor="middle" font-size="10" fill="#7a8499">read by cache_id</text>
+
+      <line x1="310" y1="44" x2="358" y2="44" stroke="#4f8aff" stroke-width="1.4" class="flow-anim" marker-end="url(#c1)"/>
+      <text x="334" y="36" text-anchor="middle" font-size="10" fill="#4f8aff">files</text>
+
+      <rect x="360" y="22" width="130" height="44" rx="7" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+      <text x="425" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="#e8ecf4">Skill Executor</text>
+      <text x="425" y="60" text-anchor="middle" font-size="10" fill="#7a8499">runs skill scripts</text>
+
+      <!-- git crossed out -->
+      <rect x="560" y="22" width="120" height="44" rx="7" fill="#141928" stroke="#2a3147" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="620" y="45" text-anchor="middle" font-size="12" fill="#4a5580">Git Provider</text>
+      <text x="620" y="60" text-anchor="middle" font-size="10" fill="#4a5580">not contacted</text>
+      <line x1="562" y1="24" x2="678" y2="64" stroke="#f05b5b" stroke-width="1.5"/>
+
+      <text x="10" y="94" font-size="10" fill="#34c97a">✓ No git dependency at runtime. Pipeline execution is fully offline-safe.</text>
+    </svg>
+  </div>
+
+  <!-- Flow D: External serve -->
+  <div class="diagram-wrap" style="margin-top:16px;">
+    <h4 style="margin-bottom:16px;">Flow D — Serve skill to external service (e.g. Claude)</h4>
+    <svg viewBox="0 0 900 100" xmlns="http://www.w3.org/2000/svg" style="font-family:'Inter',sans-serif;">
+      <defs>
+        <marker id="d1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#ef9f27" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <rect x="10" y="22" width="140" height="44" rx="7" fill="#1e2436" stroke="rgba(239,159,39,0.4)" stroke-width="1"/>
+      <text x="80" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="#ef9f27">External Service</text>
+      <text x="80" y="60" text-anchor="middle" font-size="10" fill="#7a8499">e.g. Claude, partner API</text>
+
+      <line x1="150" y1="44" x2="198" y2="44" stroke="#ef9f27" stroke-width="1.4" class="flow-anim" marker-end="url(#d1)"/>
+      <text x="174" y="36" text-anchor="middle" font-size="9" fill="#ef9f27">GET /serve/skill_a@sha</text>
+
+      <rect x="200" y="22" width="120" height="44" rx="7" fill="#1e2436" stroke="#2a3147" stroke-width="1"/>
+      <text x="260" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="#e8ecf4">Serve API</text>
+      <text x="260" y="60" text-anchor="middle" font-size="10" fill="#7a8499">auth check</text>
+
+      <line x1="320" y1="44" x2="368" y2="44" stroke="#ef9f27" stroke-width="1.4" class="flow-anim" marker-end="url(#d1)"/>
+      <text x="344" y="36" text-anchor="middle" font-size="10" fill="#ef9f27">lookup</text>
+
+      <rect x="370" y="22" width="120" height="44" rx="7" fill="#1e2436" stroke="rgba(52,201,122,0.4)" stroke-width="1"/>
+      <text x="430" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="#34c97a">skill_cache</text>
+      <text x="430" y="60" text-anchor="middle" font-size="10" fill="#7a8499">by path + sha</text>
+
+      <line x1="490" y1="44" x2="538" y2="44" stroke="#ef9f27" stroke-width="1.4" class="flow-anim" marker-end="url(#d1)"/>
+      <text x="514" y="36" text-anchor="middle" font-size="10" fill="#ef9f27">files</text>
+
+      <rect x="540" y="22" width="140" height="44" rx="7" fill="#1e2436" stroke="rgba(239,159,39,0.4)" stroke-width="1"/>
+      <text x="610" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="#ef9f27">External Service</text>
+      <text x="610" y="60" text-anchor="middle" font-size="10" fill="#7a8499">receives skill content</text>
+
+      <text x="10" y="94" font-size="10" fill="#4a5580">✓ Served entirely from cache. SHA in URL guarantees the consumer always gets the exact same artifact.</text>
+    </svg>
+  </div>
+</div>
+
+<hr class="divider">
+
+
+<!-- ══════════════════════════════════════════
+     4. API ENDPOINTS
+══════════════════════════════════════════ -->
+<div class="section" id="api">
+  <div class="section-eyebrow">04</div>
+  <h2>API Endpoints</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>Library & Browsing</h3>
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <div>
+          <div class="endpoint-path">/api/library</div>
+          <div class="endpoint-desc">Returns merged skill list from platform repo + any connected customer repos. Calls git provider on demand, no DB read.</div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <div>
+          <div class="endpoint-path">/api/library/:skill/history</div>
+          <div class="endpoint-desc">Returns commit list for a skill folder. Maps to <span class="inline-code">GET /repos/.../commits?path=</span> on the provider.</div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <div>
+          <div class="endpoint-path">/api/library/:skill/versions/:sha</div>
+          <div class="endpoint-desc">Returns skill file contents at a specific SHA. Used for preview before linking.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Repo Connections</h3>
+      <div class="endpoint">
+        <span class="method post">POST</span>
+        <div>
+          <div class="endpoint-path">/api/repos/connect</div>
+          <div class="endpoint-desc">Saves a new repo connection. Encrypts token via KMS before writing to DB. Validates access immediately.</div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <div>
+          <div class="endpoint-path">/api/repos</div>
+          <div class="endpoint-desc">Lists connected repos for the org. Never returns token values.</div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <span class="method del">DEL</span>
+        <div>
+          <div class="endpoint-path">/api/repos/:id</div>
+          <div class="endpoint-desc">Removes connection. Does not delete cached content — existing pipeline refs remain valid.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Pipeline Linking</h3>
+      <div class="endpoint">
+        <span class="method post">POST</span>
+        <div>
+          <div class="endpoint-path">/api/pipelines/:id/skills/link</div>
+          <div class="endpoint-desc">Fetches skill at HEAD (or specified SHA), writes to skill_cache, creates pipeline_skill_ref. Body: <span class="inline-code">{ skill_path, repo_connection_id?, sha? }</span></div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <span class="method post">POST</span>
+        <div>
+          <div class="endpoint-path">/api/pipelines/:id/skills/:ref/update</div>
+          <div class="endpoint-desc">Re-fetches skill at latest HEAD, creates new cache entry, updates the pipeline_skill_ref SHA. Explicit user action only.</div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <span class="method del">DEL</span>
+        <div>
+          <div class="endpoint-path">/api/pipelines/:id/skills/:ref</div>
+          <div class="endpoint-desc">Removes skill reference from pipeline. Cache entry is retained (may be shared with other pipelines).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>External Serving</h3>
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <div>
+          <div class="endpoint-path">/api/serve/:skill_name@:sha</div>
+          <div class="endpoint-desc">Returns skill content at exact SHA from cache. Requires API key auth. Returns 404 if SHA not cached (consumer must link first).</div>
+        </div>
+      </div>
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <div>
+          <div class="endpoint-path">/api/serve/:skill_name@latest</div>
+          <div class="endpoint-desc">Resolves HEAD SHA, fetches from cache (or git if not cached), returns content. Consumer accepts that this may change.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+
+<!-- ══════════════════════════════════════════
+     5. GIT PROVIDER ABSTRACTION
+══════════════════════════════════════════ -->
+<div class="section" id="git-provider">
+  <div class="section-eyebrow">05</div>
+  <h2>Git Provider Abstraction</h2>
+  <p>All git operations go through a single <span class="inline-code">GitProvider</span> interface. The rest of the backend never calls a provider API directly. Adding a new provider (Bitbucket, self-hosted Gitea) is a new implementation of this interface only.</p>
+
+  <div class="card">
+    <pre><span class="cm">// interface — provider-agnostic</span>
+<span class="kw">interface</span> <span class="val">GitProvider</span> {
+  <span class="key">listSkills</span>(repoUrl: <span class="str">string</span>, path: <span class="str">string</span>): <span class="kw">Promise</span>&lt;<span class="val">SkillEntry</span>[]&gt;
+  <span class="key">getFiles</span>(repoUrl: <span class="str">string</span>, path: <span class="str">string</span>, sha: <span class="str">string</span>): <span class="kw">Promise</span>&lt;<span class="val">FileMap</span>&gt;
+  <span class="key">getHistory</span>(repoUrl: <span class="str">string</span>, path: <span class="str">string</span>): <span class="kw">Promise</span>&lt;<span class="val">Commit</span>[]&gt;
+  <span class="key">resolveHead</span>(repoUrl: <span class="str">string</span>, branch: <span class="str">string</span>): <span class="kw">Promise</span>&lt;<span class="str">string</span>&gt; <span class="cm">// returns SHA</span>
+  <span class="key">createCommit</span>(repoUrl: <span class="str">string</span>, path: <span class="str">string</span>, files: <span class="val">FileMap</span>, message: <span class="str">string</span>): <span class="kw">Promise</span>&lt;<span class="str">string</span>&gt;
+}
+
+<span class="cm">// implementations</span>
+<span class="kw">class</span> <span class="val">GitHubProvider</span> <span class="kw">implements</span> <span class="val">GitProvider</span> { <span class="cm">/* maps to GitHub REST API */</span> }
+<span class="kw">class</span> <span class="val">GitLabProvider</span> <span class="kw">implements</span> <span class="val">GitProvider</span> { <span class="cm">/* maps to GitLab REST API */</span> }
+
+<span class="cm">// factory — resolves provider from stored repo_connection</span>
+<span class="kw">function</span> <span class="key">getProvider</span>(connection: <span class="val">RepoConnection</span>): <span class="val">GitProvider</span> {
+  <span class="kw">const</span> token = <span class="key">kms.decrypt</span>(connection.encrypted_token)
+  <span class="kw">if</span> (connection.provider === <span class="str">'github'</span>) <span class="kw">return new</span> <span class="val">GitHubProvider</span>(token)
+  <span class="kw">if</span> (connection.provider === <span class="str">'gitlab'</span>) <span class="kw">return new</span> <span class="val">GitLabProvider</span>(token)
+  <span class="kw">throw new</span> <span class="val">Error</span>(<span class="str">`Unknown provider: ${connection.provider}`</span>)
+}</pre>
+  </div>
+
+  <div class="card-grid" style="margin-top:16px;">
+    <div class="card">
+      <h3>GitHub implementation</h3>
+      <p style="font-size:13px;">Maps each interface method to a GitHub REST endpoint. Auth via PAT (v1) or GitHub App short-lived tokens (v2). Self-hosted GitHub Enterprise supported by swapping the base URL.</p>
+      <pre style="margin-top:12px;font-size:11.5px;"><span class="cm">// listSkills → GET /repos/{owner}/{repo}/contents/{path}</span>
+<span class="cm">// getFiles   → GET /repos/{owner}/{repo}/contents/{path}?ref={sha}</span>
+<span class="cm">// getHistory → GET /repos/{owner}/{repo}/commits?path={path}</span>
+<span class="cm">// resolveHead→ GET /repos/{owner}/{repo}/git/ref/heads/{branch}</span>
+<span class="cm">// createCommit→ PUT /repos/{owner}/{repo}/contents/{path}</span></pre>
+    </div>
+    <div class="card">
+      <h3>GitLab implementation</h3>
+      <p style="font-size:13px;">Maps to GitLab REST v4 API. Supports gitlab.com and self-hosted instances — base URL is configurable per repo_connection. Auth via OAuth token or PAT.</p>
+      <pre style="margin-top:12px;font-size:11.5px;"><span class="cm">// listSkills → GET /projects/{id}/repository/tree?path={path}</span>
+<span class="cm">// getFiles   → GET /projects/{id}/repository/tree?path={path}&ref={sha}</span>
+<span class="cm">// getHistory → GET /projects/{id}/repository/commits?path={path}</span>
+<span class="cm">// resolveHead→ GET /projects/{id}/repository/branches/{branch}</span>
+<span class="cm">// createCommit→ POST /projects/{id}/repository/commits</span></pre>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+
+<!-- ══════════════════════════════════════════
+     6. CACHING
+══════════════════════════════════════════ -->
+<div class="section" id="caching">
+  <div class="section-eyebrow">06</div>
+  <h2>Caching Strategy</h2>
+  <p>Caching is essential to this architecture — it is what decouples pipeline execution from any runtime dependency on git. The exact implementation (storage backend, eviction policy, cache key structure) is TBD and will be worked out as a separate exercise.</p>
+
+  <div class="card-grid">
+    <div class="card green">
+      <h3>What must be cached</h3>
+      <p style="font-size:13px;">The full file contents of a skill folder at a specific SHA. Once written, this entry is immutable — a SHA in git never changes, so the content never changes. It must be keyed by at minimum <span class="inline-code">(repo, skill_path, sha)</span>.</p>
+    </div>
+    <div class="card green">
+      <h3>When it must be populated</h3>
+      <p style="font-size:13px;">At link time — the cache entry must exist before the pipeline_skill_ref is created. At runtime the backend looks up the cache using the repo + path + sha from the pipeline YAML. If the entry is missing, the run must fail loudly rather than fall back to git.</p>
+    </div>
+    <div class="card">
+      <h3>Library listing cache</h3>
+      <p style="font-size:13px;">The skill folder listing (names, metadata) fetched from git on library page load should be short-lived cached to avoid hitting provider rate limits on every request. Exact TTL and storage TBD.</p>
+    </div>
+    <div class="card yellow">
+      <h3>Open questions</h3>
+      <p style="font-size:13px;">Where does cache content live — same DB, S3, Redis? How do we handle cache size growth over time? What happens on a cache miss at runtime — hard fail or fallback? Cleanup policy for entries with no live pipeline refs.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+
+<!-- ══════════════════════════════════════════
+     7. PIPELINE LINKING DETAIL
+══════════════════════════════════════════ -->
+<div class="section" id="pipeline-linking">
+  <div class="section-eyebrow">07</div>
+  <h2>Pipeline Linking — Detailed Flow</h2>
+  <p>This is the most critical operation. It must be atomic — either the cache entry and the pipeline ref are both created, or neither is. A partial link leaves the pipeline in an inconsistent state.</p>
+
+  <div class="card">
+    <pre><span class="cm">// POST /api/pipelines/:id/skills/link</span>
+<span class="kw">async function</span> <span class="key">linkSkill</span>({ pipelineId, skillPath, repoConnectionId, sha? }) {
+
+  <span class="cm">// 1. Resolve SHA — use provided SHA or fetch HEAD</span>
+  <span class="kw">const</span> connection = <span class="key">await</span> db.repoConnections.<span class="key">get</span>(repoConnectionId)
+  <span class="kw">const</span> provider  = <span class="key">getProvider</span>(connection)
+  <span class="kw">const</span> resolvedSha = sha ?? <span class="key">await</span> provider.<span class="key">resolveHead</span>(connection.repoUrl, <span class="str">'main'</span>)
+
+  <span class="cm">// 2. Populate cache — skip fetch if already cached at this SHA</span>
+  <span class="cm">// (exact cache implementation TBD)</span>
+  <span class="kw">const</span> cached = <span class="key">await</span> cache.<span class="key">get</span>(repoConnectionId, skillPath, resolvedSha)
+  <span class="kw">if</span> (!cached) {
+    <span class="kw">const</span> files = <span class="key">await</span> provider.<span class="key">getFiles</span>(connection.repoUrl, skillPath, resolvedSha)
+    <span class="key">await</span> cache.<span class="key">set</span>(repoConnectionId, skillPath, resolvedSha, files)
+  }
+
+  <span class="cm">// 3. Create pipeline ref — repo + path + sha is enough for backend to resolve cache</span>
+  <span class="kw">await</span> db.pipelineSkillRefs.<span class="key">create</span>({
+    pipelineId, skillPath,
+    repoConnectionId, pinnedSha: resolvedSha
+  })
+
+  <span class="cm">// 4. Update pipeline.yaml — path + sha only, no internal IDs</span>
+  <span class="kw">await</span> pipelines.<span class="key">addSkillRef</span>(pipelineId, { skillPath, sha: resolvedSha })
+}</pre>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3>Updating a linked skill</h3>
+    <p style="font-size:13px;">Updating is an explicit user action — never automatic. The user sees the current pinned SHA and the latest SHA in the UI. If they differ, an "Update available" badge appears. Clicking it triggers the same link flow with the new HEAD SHA, creating a new cache entry and updating the pipeline ref.</p>
+    <p style="font-size:13px; margin-top:8px;">Old cache entries are retained — other pipelines may still reference them. Cleanup of unreferenced cache entries can be a background job run periodically.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+
+<!-- ══════════════════════════════════════════
+     8. EXTERNAL SERVING
+══════════════════════════════════════════ -->
+<div class="section" id="external-serving">
+  <div class="section-eyebrow">08</div>
+  <h2>External Serving</h2>
+  <p>External services (e.g. Claude, partner integrations) request skill content via a public API. All responses come from cache — git is never called during serving.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>Pinned version</h3>
+      <pre style="font-size:12px;"><span class="cm"># Always returns the same content</span>
+<span class="key">GET</span> <span class="str">/api/serve/skill_a@a3f9c1d</span>
+Authorization: Bearer &lt;api_key&gt;
+
+<span class="cm"># Response</span>
+{
+  <span class="key">"skill"</span>: <span class="str">"skill_a"</span>,
+  <span class="key">"sha"</span>: <span class="str">"a3f9c1d"</span>,
+  <span class="key">"files"</span>: {
+    <span class="key">"run.py"</span>: <span class="str">"..."</span>,
+    <span class="key">"config.json"</span>: <span class="str">"..."</span>
+  }
+}</pre>
+    </div>
+    <div class="card">
+      <h3>Latest version</h3>
+      <pre style="font-size:12px;"><span class="cm"># Resolves HEAD at request time</span>
+<span class="key">GET</span> <span class="str">/api/serve/skill_a@latest</span>
+Authorization: Bearer &lt;api_key&gt;
+
+<span class="cm"># Response includes resolved SHA</span>
+{
+  <span class="key">"skill"</span>: <span class="str">"skill_a"</span>,
+  <span class="key">"sha"</span>: <span class="str">"b18e2a4"</span>,   <span class="cm">// actual SHA</span>
+  <span class="key">"files"</span>: { <span class="str">"..."</span> }
+}
+<span class="cm"># Consumer can pin to this SHA for stability</span></pre>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+
+<!-- ══════════════════════════════════════════
+     9. RISKS
+══════════════════════════════════════════ -->
+<div class="section" id="risks">
+  <div class="section-eyebrow">09</div>
+  <h2>Risks &amp; Mitigations</h2>
+
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Risk</th>
+          <th>Likelihood</th>
+          <th>Impact</th>
+          <th>Mitigation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Git provider unreachable during browse</td>
+          <td><span class="risk-tag risk-med">Medium</span></td>
+          <td><span class="risk-tag risk-low">Low</span></td>
+          <td>Show last-known library list from short-lived cache. Pipeline execution unaffected.</td>
+        </tr>
+        <tr>
+          <td>Token leak / credential exposure</td>
+          <td><span class="risk-tag risk-low">Low</span></td>
+          <td><span class="risk-tag risk-high">High</span></td>
+          <td>KMS encryption at rest. Never return tokens in API responses. GitHub App tokens expire in 1 hour. Audit log all decryption events.</td>
+        </tr>
+        <tr>
+          <td>Git provider API rate limits</td>
+          <td><span class="risk-tag risk-med">Medium</span></td>
+          <td><span class="risk-tag risk-med">Medium</span></td>
+          <td>Short-lived library listing cache (60s). Link operations are infrequent. GitHub App has 15,000 req/hour vs PAT's 5,000.</td>
+        </tr>
+        <tr>
+          <td>skill_cache grows unbounded</td>
+          <td><span class="risk-tag risk-low">Low</span></td>
+          <td><span class="risk-tag risk-low">Low</span></td>
+          <td>Background job periodically removes cache entries with no live pipeline_skill_ref. Skills are small files — growth is slow.</td>
+        </tr>
+        <tr>
+          <td>Customer deletes connected repo</td>
+          <td><span class="risk-tag risk-low">Low</span></td>
+          <td><span class="risk-tag risk-med">Medium</span></td>
+          <td>Existing cached content and pipeline refs are unaffected. Library browse for that repo shows an error state. Notify org admins.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="padding: 56px 48px 0;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;display:flex;align-items:center;gap:16px;">
+    <div style="font-size:22px;">💬</div>
+    <p style="font-size:13.5px;">This document is a working draft. Sections marked TBD (UI editing flow, GitHub App auth) will be expanded once Phase 1 is underway and decisions are confirmed.</p>
+  </div>
+</div>
+
+</div><!-- /page-wrap -->
+</body>
+</html>
